@@ -39,6 +39,22 @@ npm run dev
 - Очищення даних браузера видалить усі інвойси
 - Особистий інструмент, не бухгалтерська система
 
+## Формат XML
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<invoices>
+  <invoice>
+    <id>1700000000000</id>
+    <client>Клієнт</client>
+    <amount>1000</amount>
+    <description>Опис</description>
+    <date>2026-06-14</date>
+    <status>pending</status>
+  </invoice>
+</invoices>
+```
+
 ## Ліцензія
 
 MIT
