@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Інвойси</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 40px 16px;
+      color: #1a1a2e;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #16213e;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+    }
+
+    .toolbar button,
+    .toolbar label {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border: 1.5px solid #d0d0d0;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.7);
+      color: #444;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toolbar button:hover,
+    .toolbar label:hover {
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .toolbar input[type="file"] {
+      display: none;
+    }
+
+    invoice-form {
+      display: block;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+      margin-bottom: 24px;
+    }
+
+    invoice-form form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    invoice-form input,
+    invoice-form textarea {
+      font-family: inherit;
+      font-size: 15px;
+      padding: 10px 14px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 10px;
+      background: white;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    invoice-form input:focus,
+    invoice-form textarea:focus {
+      border-color: #4a6cf7;
+      box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+    }
+
+    invoice-form textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .amount-wrap {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+    }
+
+    .amount-wrap input {
+      flex: 1;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: none;
+    }
+
+    .amount-wrap .currency {
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #4a6cf7;
+      background: #f0f2ff;
+      border: 1.5px solid #e0e0e0;
+      border-left: none;
+      border-radius: 0 10px 10px 0;
+    }
+
+    invoice-form button {
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 10px 20px;
+      background: #4a6cf7;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    invoice-form button:hover {
+      background: #3b5de7;
+    }
+
+    invoice-list {
+      display: block;
+    }
+
+    invoice-list ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    invoice-list li {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    invoice-list li:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .invoice-header strong {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .amount {
+      font-size: 16px;
+      font-weight: 700;
+      color: #4a6cf7;
+    }
+
+    .amount .currency {
+      font-size: 13px;
+      font-weight: 600;
+      color: #8890b0;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .invoice-date {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 6px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .toggle-btn {
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    li[data-status="paid"] .toggle-btn {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    li[data-status="pending"] .toggle-btn {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    .delete-btn {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 8px;
+      background: #fce4ec;
+      color: #c62828;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-left: auto;
+    }
+
+    .delete-btn:hover {
+      background: #f8bbd0;
+    }
+
+    .empty {
+      text-align: center;
+      color: #888;
+      padding: 40px 20px;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Інвойси</h1>
+      <div class="toolbar">
+        <button id="export-xml">↓ XML</button>
+        <label>
+          ↑ XML
+          <input type="file" id="import-xml" accept=".xml" />
+        </label>
+      </div>
+    </div>
+
+    <invoice-form></invoice-form>
+    <invoice-list></invoice-list>
+  </div>
+
+  <script type="module" src="./components/app.js"></script>
+</body>
+</html>
