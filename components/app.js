@@ -4,11 +4,76 @@ import './invoice-list.js';
 
 const db = await openDB();
 const listEl = document.querySelector('invoice-list');
+const demoButton = document.getElementById('load-demo');
+const countEl = document.getElementById('invoice-count');
+const pendingEl = document.getElementById('pending-total');
+const paidEl = document.getElementById('paid-total');
+
+const demoInvoices = [
+  {
+    id: 'demo-brand-system',
+    client: 'Майстерня «Тепло»',
+    amount: 18400,
+    description: 'Дизайн-система та адаптивна верстка',
+    date: '2026-07-08',
+    status: 'paid'
+  },
+  {
+    id: 'demo-landing-page',
+    client: 'ГО «Сильні разом»',
+    amount: 12750,
+    description: 'Лендінг для благодійної події',
+    date: '2026-07-17',
+    status: 'pending'
+  },
+  {
+    id: 'demo-support',
+    client: 'Крамниця «Лист»',
+    amount: 6800,
+    description: 'Технічна підтримка за липень',
+    date: '2026-07-21',
+    status: 'pending'
+  }
+];
 
 async function loadInvoices() {
   const data = await getAllInvoices(db);
-  listEl.invoices = data;
+  const invoices = data.sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  listEl.invoices = invoices;
+  renderSummary(invoices);
+
+  const hasAllDemoInvoices = demoInvoices.every(demo => invoices.some(invoice => invoice.id === demo.id));
+  demoButton.disabled = hasAllDemoInvoices;
+  demoButton.textContent = hasAllDemoInvoices ? 'Приклад завантажено' : 'Завантажити приклад';
 }
+
+function renderSummary(invoices) {
+  const total = status => invoices
+    .filter(invoice => invoice.status === status)
+    .reduce((sum, invoice) => sum + (Number(invoice.amount) || 0), 0);
+
+  countEl.textContent = String(invoices.length);
+  pendingEl.textContent = formatCurrency(total('pending'));
+  paidEl.textContent = formatCurrency(total('paid'));
+}
+
+function formatCurrency(value) {
+  return new Intl.NumberFormat('uk-UA', {
+    style: 'currency',
+    currency: 'UAH',
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+demoButton.addEventListener('click', async () => {
+  for (const invoice of demoInvoices) {
+    if (!await getInvoice(db, invoice.id)) {
+      await addInvoice(db, invoice);
+    }
+  }
+
+  await loadInvoices();
+});
 
 // створення
 document.addEventListener('create-invoice', async (e) => {
@@ -97,7 +162,7 @@ document.getElementById('import-xml').addEventListener('change', async (e) => {
 });
 
 function esc(s) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // старт
