@@ -3,290 +3,331 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Інвойси</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <meta name="description" content="Локальний трекер інвойсів для українських ФОПів — без акаунта, сервера та залежностей." />
+  <meta name="theme-color" content="#f4f1ea" />
+  <title>ФОП Інвойси — локальний трекер</title>
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root {
+      color-scheme: light;
+      --ink: #17211b;
+      --muted: #667069;
+      --paper: #fffdf8;
+      --canvas: #f4f1ea;
+      --line: #dcd8ce;
+      --green: #176b45;
+      --green-soft: #e2f0e8;
+      --amber: #9a5d11;
+      --amber-soft: #fff0d8;
+      --red: #a33c37;
+      --shadow: 0 18px 50px rgba(29, 45, 35, 0.08);
     }
+
+    *, *::before, *::after { box-sizing: border-box; }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
       min-height: 100vh;
-      padding: 40px 16px;
-      color: #1a1a2e;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(23, 107, 69, 0.10), transparent 28rem),
+        var(--canvas);
     }
 
-    .container {
-      max-width: 640px;
+    button, input, textarea { font: inherit; }
+    button, label { -webkit-tap-highlight-color: transparent; }
+
+    .shell {
+      width: min(1080px, calc(100% - 32px));
       margin: 0 auto;
+      padding: 24px 0 64px;
     }
 
-    .header {
+    .nav, .hero, .section-heading, .invoice-header, .actions, .toolbar {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+    }
+
+    .nav {
+      justify-content: space-between;
+      min-height: 48px;
+      margin-bottom: 56px;
+    }
+
+    .brand { font-weight: 750; letter-spacing: -0.03em; }
+
+    .privacy {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .privacy::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 5px var(--green-soft);
+    }
+
+    .hero {
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+      margin-bottom: 42px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
     }
 
     h1 {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      color: #16213e;
+      max-width: 720px;
+      margin: 0;
+      font-size: clamp(42px, 8vw, 84px);
+      line-height: 0.94;
+      letter-spacing: -0.065em;
     }
 
-    .toolbar {
-      display: flex;
-      gap: 8px;
+    .intro {
+      max-width: 520px;
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.55;
     }
 
-    .toolbar button,
-    .toolbar label {
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 6px 12px;
-      border: 1.5px solid #d0d0d0;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.7);
-      color: #444;
+    .demo-action {
+      flex: 0 0 auto;
+      min-width: 190px;
+      padding: 14px 18px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      color: var(--paper);
+      background: var(--ink);
       cursor: pointer;
-      transition: background 0.2s;
+      font-weight: 750;
+      transition: transform 160ms ease, background 160ms ease;
     }
 
-    .toolbar button:hover,
-    .toolbar label:hover {
-      background: rgba(255, 255, 255, 0.95);
-    }
+    .demo-action:hover { transform: translateY(-2px); background: var(--green); }
+    .demo-action:disabled { opacity: 0.55; cursor: default; transform: none; }
 
-    .toolbar input[type="file"] {
-      display: none;
-    }
-
-    invoice-form {
-      display: block;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
-      margin-bottom: 24px;
-    }
-
-    invoice-form form {
-      display: flex;
-      flex-direction: column;
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
+      margin-bottom: 28px;
     }
 
-    invoice-form input,
-    invoice-form textarea {
-      font-family: inherit;
-      font-size: 15px;
-      padding: 10px 14px;
-      border: 1.5px solid #e0e0e0;
-      border-radius: 10px;
-      background: white;
-      transition: border-color 0.2s;
+    .stat {
+      min-height: 126px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255, 253, 248, 0.72);
+    }
+
+    .stat span { color: var(--muted); font-size: 13px; }
+    .stat strong { display: block; margin-top: 22px; font-size: 28px; letter-spacing: -0.04em; }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.8fr) minmax(340px, 1.2fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .section-heading { justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    h2 { margin: 0; font-size: 19px; letter-spacing: -0.025em; }
+    .section-heading p { margin: 0; color: var(--muted); font-size: 12px; }
+
+    .toolbar { gap: 8px; }
+    .toolbar button, .toolbar label {
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .toolbar button:hover, .toolbar label:hover { color: var(--ink); border-color: var(--ink); }
+    .toolbar input[type="file"] { display: none; }
+
+    invoice-form, invoice-list { display: block; }
+    invoice-form form { display: grid; gap: 12px; }
+    invoice-form input, invoice-form textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      background: #fff;
       outline: none;
     }
-
-    invoice-form input:focus,
-    invoice-form textarea:focus {
-      border-color: #4a6cf7;
-      box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+    invoice-form input:focus, invoice-form textarea:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px var(--green-soft);
     }
+    invoice-form textarea { min-height: 84px; resize: vertical; }
 
-    invoice-form textarea {
-      resize: vertical;
-      min-height: 60px;
-    }
-
-    .amount-wrap {
-      display: flex;
-      align-items: stretch;
-      gap: 0;
-    }
-
-    .amount-wrap input {
-      flex: 1;
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-      border-right: none;
-    }
-
+    .amount-wrap { display: flex; }
+    .amount-wrap input { border-radius: 12px 0 0 12px; }
     .amount-wrap .currency {
-      display: flex;
-      align-items: center;
+      display: grid;
+      place-items: center;
       padding: 0 14px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #4a6cf7;
-      background: #f0f2ff;
-      border: 1.5px solid #e0e0e0;
-      border-left: none;
-      border-radius: 0 10px 10px 0;
+      border: 1px solid var(--line);
+      border-left: 0;
+      border-radius: 0 12px 12px 0;
+      color: var(--muted);
+      background: var(--canvas);
+      font-size: 13px;
+      font-weight: 700;
     }
 
     invoice-form button {
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 600;
-      padding: 10px 20px;
-      background: #4a6cf7;
-      color: white;
-      border: none;
-      border-radius: 10px;
+      padding: 12px 16px;
+      border: 0;
+      border-radius: 12px;
+      color: #fff;
+      background: var(--green);
       cursor: pointer;
-      transition: background 0.2s;
+      font-weight: 750;
     }
 
-    invoice-form button:hover {
-      background: #3b5de7;
-    }
-
-    invoice-list {
-      display: block;
-    }
-
-    invoice-list ul {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
+    invoice-list ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
     invoice-list li {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 14px;
-      padding: 18px 20px;
-      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
-      transition: transform 0.15s, box-shadow 0.15s;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
     }
-
-    invoice-list li:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    }
-
-    .invoice-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-
-    .invoice-header strong {
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .amount {
-      font-size: 16px;
-      font-weight: 700;
-      color: #4a6cf7;
-    }
-
-    .amount .currency {
-      font-size: 13px;
-      font-weight: 600;
-      color: #8890b0;
-    }
-
-    .description {
-      font-size: 14px;
-      color: #666;
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-
-    .invoice-date {
-      font-size: 13px;
-      color: #999;
-      margin-bottom: 6px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .toggle-btn {
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 6px 14px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    li[data-status="paid"] .toggle-btn {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-
-    li[data-status="pending"] .toggle-btn {
-      background: #fff3e0;
-      color: #e65100;
-    }
-
+    .invoice-header { justify-content: space-between; gap: 16px; }
+    .invoice-header strong { overflow-wrap: anywhere; }
+    .amount { white-space: nowrap; color: var(--green); font-weight: 800; }
+    .amount .currency { color: var(--muted); font-size: 12px; }
+    .invoice-date, .description { color: var(--muted); font-size: 13px; }
+    .invoice-date { margin-top: 6px; }
+    .description { min-height: 18px; margin: 8px 0 14px; line-height: 1.45; }
+    .actions { gap: 8px; }
+    .actions button { border: 0; border-radius: 999px; cursor: pointer; }
+    .toggle-btn { padding: 7px 11px; font-size: 12px; font-weight: 750; }
+    li[data-status="paid"] .toggle-btn { color: var(--green); background: var(--green-soft); }
+    li[data-status="pending"] .toggle-btn { color: var(--amber); background: var(--amber-soft); }
     .delete-btn {
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: none;
-      border-radius: 8px;
-      background: #fce4ec;
-      color: #c62828;
-      cursor: pointer;
-      transition: background 0.2s;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
       margin-left: auto;
-    }
-
-    .delete-btn:hover {
-      background: #f8bbd0;
+      color: var(--red);
+      background: #fae9e7;
     }
 
     .empty {
+      margin: 0;
+      padding: 44px 20px;
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      color: var(--muted);
       text-align: center;
-      color: #888;
-      padding: 40px 20px;
-      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .footnote {
+      margin: 28px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 24px, 620px); padding-top: 12px; }
+      .nav { margin-bottom: 38px; }
+      .hero { display: block; }
+      .demo-action { width: 100%; margin-top: 24px; }
+      .stats { grid-template-columns: 1fr; }
+      .stat { min-height: 94px; }
+      .stat strong { margin-top: 12px; }
+      .workspace { grid-template-columns: 1fr; }
+      .panel { padding: 18px; border-radius: 20px; }
+      .section-heading { align-items: flex-start; flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Інвойси</h1>
-      <div class="toolbar">
-        <button id="export-xml">↓ XML</button>
-        <label>
-          ↑ XML
-          <input type="file" id="import-xml" accept=".xml" />
-        </label>
-      </div>
-    </div>
+  <main class="shell">
+    <nav class="nav" aria-label="Головна навігація">
+      <span class="brand">ФОП Інвойси</span>
+      <span class="privacy">Дані лише у вашому браузері</span>
+    </nav>
 
-    <invoice-form></invoice-form>
-    <invoice-list></invoice-list>
-  </div>
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Local first · zero dependencies</p>
+        <h1 id="page-title">Інвойси без зайвої бухгалтерії.</h1>
+        <p class="intro">Створюйте, відмічайте оплачені та переносьте інвойси одним XML-файлом. Без акаунта, сервера й передачі фінансових даних.</p>
+      </div>
+      <button class="demo-action" id="load-demo" type="button">Завантажити приклад</button>
+    </section>
+
+    <section class="stats" aria-label="Підсумки інвойсів">
+      <div class="stat"><span>Усього інвойсів</span><strong id="invoice-count">0</strong></div>
+      <div class="stat"><span>Очікується</span><strong id="pending-total">0 ₴</strong></div>
+      <div class="stat"><span>Оплачено</span><strong id="paid-total">0 ₴</strong></div>
+    </section>
+
+    <section class="workspace" aria-label="Робоча область">
+      <div class="panel">
+        <div class="section-heading">
+          <div>
+            <h2>Новий інвойс</h2>
+            <p>Збережеться локально</p>
+          </div>
+        </div>
+        <invoice-form></invoice-form>
+      </div>
+
+      <div class="panel">
+        <div class="section-heading">
+          <div>
+            <h2>Ваші інвойси</h2>
+            <p>Натисніть статус, щоб змінити його</p>
+          </div>
+          <div class="toolbar" aria-label="Імпорт та експорт">
+            <button id="export-xml" type="button">↓ XML</button>
+            <label>
+              ↑ XML
+              <input type="file" id="import-xml" accept=".xml,application/xml,text/xml" />
+            </label>
+          </div>
+        </div>
+        <invoice-list></invoice-list>
+      </div>
+    </section>
+
+    <p class="footnote">Особистий інструмент, не бухгалтерська система. Очищення даних браузера видалить локальні інвойси.</p>
+  </main>
 
   <script type="module" src="./components/app.js"></script>
 </body>

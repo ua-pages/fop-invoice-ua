@@ -15,7 +15,7 @@ export class InvoiceList extends HTMLElement {
 
   render() {
     if (!this._invoices.length) {
-      this.innerHTML = `<p>Немає інвойсів</p>`;
+      this.innerHTML = `<p class="empty">Інвойсів ще немає.<br>Створіть перший або завантажте показовий приклад.</p>`;
       return;
     }
 
@@ -24,11 +24,11 @@ export class InvoiceList extends HTMLElement {
         ${this._invoices.map(inv => `
           <li data-id="${inv.id}" data-status="${inv.status}">
             <div class="invoice-header">
-              <strong>${inv.client}</strong>
-              <span class="amount">${inv.amount} <span class="currency">грн</span></span>
+              <strong>${escapeHtml(inv.client)}</strong>
+              <span class="amount">${formatAmount(inv.amount)} <span class="currency">грн</span></span>
             </div>
-            <div class="invoice-date">${inv.date || ''}</div>
-            <div class="description">${inv.description || ''}</div>
+            <div class="invoice-date">${escapeHtml(inv.date || '')}</div>
+            <div class="description">${escapeHtml(inv.description || '')}</div>
             <div class="actions">
               <button class="toggle-btn" data-action="toggle">
                 ${inv.status === 'paid' ? 'Оплачено' : 'Очікує'}
@@ -74,3 +74,16 @@ export class InvoiceList extends HTMLElement {
 }
 
 customElements.define('invoice-list', InvoiceList);
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function formatAmount(value) {
+  return new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 2 }).format(Number(value) || 0);
+}
