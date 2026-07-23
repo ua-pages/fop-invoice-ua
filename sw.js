@@ -9,6 +9,10 @@ const ASSETS = [
   './db.js',
   './manifest.json',
   './icons/icon.svg',
+  './icons/favicon.ico',
+  './icons/favicon-32x32.png',
+  './icons/favicon-16x16.png',
+  './icons/apple-touch-icon.png',
 ]
 
 self.addEventListener('install', event => {
