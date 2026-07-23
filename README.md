@@ -28,7 +28,7 @@
 ## Як запустити
 
 ```bash
-git clone git@github.com:M00rlock/fop-invoice-ua.git
+git clone git@github.com:ua-pages/fop-invoice-ua.git
 cd fop-invoice-ua
 npm run dev
 # або: node server.js

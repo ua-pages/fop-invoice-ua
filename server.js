@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const MIME = {
@@ -12,7 +12,7 @@ const MIME = {
   '.json': 'application/json',
 };
 
-http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
   let filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
 
   const ext = path.extname(filePath);
@@ -27,6 +27,11 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': mime });
     res.end(data);
   });
-}).listen(PORT, () => {
-  console.log(`http://localhost:${PORT}`);
 });
+
+server.listen(PORT, () => {
+  const addr = server.address();
+  console.log(`http://localhost:${addr.port}`);
+});
+
+export { server };
