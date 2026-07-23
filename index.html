@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Локальний трекер інвойсів для українських ФОПів — без акаунта, сервера та залежностей." />
   <meta name="theme-color" content="#f4f1ea" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+  <link rel="apple-touch-icon" href="./icons/icon.svg" />
   <title>ФОП Інвойси — локальний трекер</title>
   <style>
     :root {
@@ -330,5 +335,10 @@
   </main>
 
   <script type="module" src="./components/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js');
+    }
+  </script>
 </body>
 </html>
